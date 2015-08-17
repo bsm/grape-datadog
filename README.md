@@ -14,15 +14,17 @@ Or install:
 
     $ gem install grape-datadog
 
-Include it in your Grape API like this
+Include it in your Grape API like this:
 
     class TestAPI < Grape::API
-      use Datadog::Grape::Middleware
+      use Grape::Datadog::Middleware
 
       get 'hello' do
         "Hello World"
       end
     end
+
+For full configuration options, please see the [Documentation][4].
 
 ## Contributing
 
@@ -36,3 +38,4 @@ Include it in your Grape API like this
 [1]: https://github.com/seanmoon/grape-librato
 [2]: https://github.com/flyerhzm/newrelic-grape
 [3]: https://github.com/DataDog/dogstatsd-ruby
+[4]: http://www.rubydoc.info/gems/grape-datadog

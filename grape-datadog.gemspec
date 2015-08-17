@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'grape-datadog/version'
+require 'grape/datadog/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "grape-datadog"
-  gem.version       = Datadog::Grape::VERSION
+  gem.version       = Grape::Datadog::VERSION.dup
   gem.authors       = ["Artem Chernyshev"]
   gem.email         = ["artem.0xD2@gmail.com"]
   gem.description   = %q{Datadog metrics for grape}
@@ -19,4 +19,9 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency(%q<grape>)
   gem.add_runtime_dependency(%q<dogstatsd-ruby>)
+
+  gem.add_development_dependency(%q<rake>)
+  gem.add_development_dependency(%q<bundler>)
+  gem.add_development_dependency(%q<rack-test>)
+  gem.add_development_dependency(%q<rspec>, "~> 3.0")
 end

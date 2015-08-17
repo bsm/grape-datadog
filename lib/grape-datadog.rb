@@ -1,2 +1,1 @@
-require "grape-datadog/version"
-require "grape-datadog/middleware"
+require "grape/datadog"
