@@ -20,6 +20,9 @@ describe Grape::Datadog::Middleware do
     subject = described_class.new(nil, hostname: "test.host")
     expect(subject.instance_variable_get(:@tags)).to eq(["host:test.host"])
     expect(subject.instance_variable_get(:@statsd)).to be_instance_of(MockStatsd)
+
+    subject = described_class.new(nil, prefer_global: false)
+    expect(subject.instance_variable_get(:@statsd)).to be_instance_of(Statsd)
   end
 
   it 'should send an increment and timing event for each request' do

@@ -7,8 +7,6 @@ module Grape
 
     class Middleware < ::Grape::Middleware::Base
 
-      attr_reader :statsd
-
       # Create a new +Datadog+ middleware instance.
       #
       # ==== Options
@@ -17,7 +15,7 @@ module Grape
       # * <tt>:tags</tt> - array of custom tags, these can be plain strings or lambda blocks accepting a rack env instance
       # * <tt>:statsd_host</tt> - the statsD host, defaults to "localhost", respects +STATSD_HOST+ env variable
       # * <tt>:statsd_port</tt> - the statsD port, defaults to 8125, respects +STATSD_PORT+ env variable
-      # * <tt>:use_global</tt> - if set, tries to find global `$statsd` instance, otherwise connects to +statsd_host+:+statsd_port. Default: true
+      # * <tt>:prefer_global</tt> - if set, tries to find global `$statsd` instance, otherwise connects to +statsd_host+:+statsd_port. Default: true
       def initialize(app, opts = {})
         hostname    = opts[:hostname] || ENV['INSTRUMENTATION_HOSTNAME'] || Socket.gethostname
         statsd_host = opts[:statsd_host] || ENV['STATSD_HOST'] || "localhost"
@@ -25,17 +23,17 @@ module Grape
 
         @app    = app
         @metric = opts[:metric_name] || "grape.request"
-        @statsd = opts[:use_global] == false || !defined?($statsd) ? ::Statsd.new(statsd_host, statsd_port) : $statsd
+        @statsd = opts[:prefer_global] == false || !defined?($statsd) ? ::Statsd.new(statsd_host, statsd_port) : $statsd
         @tags   = opts[:tags] || []
         @tags.push "host:#{hostname}"
       end
 
       def call(env)
         tags = prepare_tags(env)
-        statsd.time "#{@metric}.time", :tags => tags do
+        @statsd.time "#{@metric}.time", :tags => tags do
           resp = @app.call(env)
           tags.push "status:#{resp.status}"
-          statsd.increment @metric, :tags => tags
+          @statsd.increment @metric, :tags => tags
           resp
         end
       end
