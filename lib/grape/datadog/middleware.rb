@@ -25,7 +25,7 @@ module Grape
         @metric = opts[:metric_name] || "grape.request"
         @statsd = opts[:prefer_global] == false || !defined?($statsd) ? ::Statsd.new(statsd_host, statsd_port) : $statsd
         @tags   = opts[:tags] || []
-        @tags.push "host:#{hostname}"
+        @tags  += ["host:#{hostname}"]
       end
 
       def call(env)
@@ -41,15 +41,18 @@ module Grape
       private
 
       def prepare_tags(env)
-        path = env['api.endpoint'].routes.first.route_path[1..-1].gsub("/", ".").sub(/\(\.:format\)\z/, "").gsub(/\.:(\w+)/, '.{\1}')
+        endpoint = env['api.endpoint']
+        path     = File.join endpoint.namespace, endpoint.options[:path].join('/').gsub(/:(\w+)/) {|m| "_#{m[1..-1]}_" }
+        versions = endpoint.namespace_inheritable(:version)
+        version  = versions.first if versions
+
         @tags.map do |tag|
-          case tag
-          when String
-            tag
-          when Proc
-            tag.call(env)
-          end
-        end.compact + ["method:#{env[Rack::REQUEST_METHOD]}", "path:#{path}"]
+          case tag when String then tag when Proc then tag.call(env) end
+        end.compact + [
+          "method:#{env[Rack::REQUEST_METHOD]}",
+          "path:#{path}",
+          (version ? "version:#{version}" : nil),
+        ].compact
       end
 
     end
