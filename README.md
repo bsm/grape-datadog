@@ -1,8 +1,7 @@
 grape-datadog
 =============
 
-Datadog stats reporter for [Grape][0], based on code from [this Librato
-gem][1], which is based on [this NewRelic gem][2], using [dogstatsd-ruby][3]
+Datadog intrumentation for [Grape](https://github.com/intridea/grape), integrated via [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html).
 
 ## Installation
 
@@ -14,17 +13,14 @@ Or install:
 
     $ gem install grape-datadog
 
-Include it in your Grape API like this:
+Configure it in an initializer:
 
-    class TestAPI < Grape::API
-      use Grape::Datadog::Middleware
-
-      get 'hello' do
-        "Hello World"
-      end
+    Grape::Datadog.install! do |c|
+      c.hostname = "my-host"
+      c.tags = ["my:tag"]
     end
 
-For full configuration options, please see the [Documentation][4].
+For full configuration options, please see the [Documentation][http://www.rubydoc.info/gems/grape-datadog].
 
 ## Contributing
 
@@ -34,8 +30,3 @@ For full configuration options, please see the [Documentation][4].
 4. Push to the branch (`git push origin my-new-feature`)
 5. Make a pull request
 
-[0]: https://github.com/intridea/grape
-[1]: https://github.com/seanmoon/grape-librato
-[2]: https://github.com/flyerhzm/newrelic-grape
-[3]: https://github.com/DataDog/dogstatsd-ruby
-[4]: http://www.rubydoc.info/gems/grape-datadog

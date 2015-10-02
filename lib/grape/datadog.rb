@@ -85,7 +85,3 @@ module Grape
 
   end
 end
-
-# %w|version middleware|.each do |name|
-#   require "grape/datadog/#{name}"
-# end
