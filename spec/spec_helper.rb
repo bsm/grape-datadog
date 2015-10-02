@@ -16,4 +16,30 @@ class MockStatsd < Statsd
   alias :send_stat :send_to_buffer
 end
 
-$statsd = MockStatsd.new(nil, nil, {}, 10000)
+class VersionedTestAPI < Grape::API
+  version 'v1'
+  prefix  'api'
+
+  get('versioned') { "OK" }
+end
+
+class TestAPI < Grape::API
+  get 'echo/:key1/:key2' do
+    "#{params['key1']} #{params['key2']}"
+  end
+
+  namespace :sub do
+    mount VersionedTestAPI
+
+    namespace :nest do
+      get("/resource") { "{}" }
+      put("/resource") { "OK" }
+    end
+  end
+end
+
+Grape::Datadog.install! do |c|
+  c.hostname = "test.host"
+  c.statsd   = MockStatsd.new(nil, nil, {}, 10000)
+  c.tags     = ["custom:tag", lambda{|e| "format:#{e.env['api.format']}" }]
+end

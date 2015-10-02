@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+=begin
 describe Grape::Datadog::Middleware do
 
   class VersionedTestAPI < Grape::API
@@ -20,6 +21,11 @@ describe Grape::Datadog::Middleware do
 
     namespace :sub do
       mount VersionedTestAPI
+
+      namespace :nest do
+        get("/resource") { "{}" }
+        put("/resource") { "OK" }
+      end
     end
   end
 
@@ -58,4 +64,16 @@ describe Grape::Datadog::Middleware do
     ])
   end
 
+  it 'should support deep nesting' do
+    get '/sub/nest/resource'
+    expect(last_response.status).to eq(200)
+    expect(last_response.body).to eq('{}')
+
+    expect($statsd.buffer).to eq([
+      "grape.request:1|c|#custom:tag,scheme:http,host:test.host,method:GET,path:/sub/versioned,version:v1,status:200",
+      "grape.request.time:333|ms|#custom:tag,scheme:http,host:test.host,method:GET,path:/sub/versioned,version:v1,status:200",
+    ])
+  end
+
 end
+=end

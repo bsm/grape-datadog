@@ -1,10 +1,10 @@
 require 'grape'
 require 'statsd'
 require 'socket'
+require 'active_support/notifications'
 
 module Grape
-  module Datadog
-
+  class Datadog
     class Middleware < ::Grape::Middleware::Base
 
       # Create a new +Datadog+ middleware instance.
@@ -42,6 +42,7 @@ module Grape
 
       def prepare_tags(env)
         endpoint = env['api.endpoint']
+        p endpoint
         path     = File.join endpoint.namespace, endpoint.options[:path].join('/').gsub(/:(\w+)/) {|m| "_#{m[1..-1]}_" }
         versions = endpoint.namespace_inheritable(:version)
         version  = versions.first if versions
