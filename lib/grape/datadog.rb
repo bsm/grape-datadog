@@ -26,8 +26,7 @@ module Grape
       instance.send(:subscribe!)
     end
 
-    attr_accessor :hostname, :metric_name, :statsd_host, :statsd_port, :tags
-    attr_writer   :statsd
+    attr_accessor :hostname, :metric_name, :statsd_host, :statsd_port, :tags, :statsd
 
     def initialize
       @hostname     = ENV['INSTRUMENTATION_HOSTNAME'] || Socket.gethostname
@@ -37,15 +36,11 @@ module Grape
       @tags         = []
     end
 
-    def statsd
-      @statsd ||= ::Statsd.new(statsd_host, statsd_port)
-    end
-
     private
 
       def subscribe!
         if frozen?
-          warn "#{self.class.name} was already initialized!"
+          warn "#{self.class.name} is already installed (called from #{caller[1]})"
           return
         end
 
@@ -61,6 +56,7 @@ module Grape
           record payload[:endpoint], ((finish-start)*1000).round
         end
 
+        @statsd ||= ::Statsd.new(statsd_host, statsd_port)
         freeze
       end
 
