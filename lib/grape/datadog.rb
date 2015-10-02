@@ -63,14 +63,12 @@ module Grape
       def record(endpoint, ms)
         route   = endpoint.route
         version = route.route_version
-        path    = route.route_path.sub("(.:format)", "").gsub(/\(?:(\w+)\)?/) {|m| "_#{m[1..-1]}_" }
         method  = route.route_method
 
-        namespace = route.route_namespace
-        if namespace && !namespace.empty?
-          path = "/#{path}" if path[0] != '/'
-          path = File.join(namespace, path)
-        end
+        path = route.route_path
+        path.sub!("(.:format)", "")
+        path.sub!(":version/", "") if version
+        path.gsub!(/\(?:(\w+)\)?/) {|m| "_#{m[1..-1]}_" }
 
         tags = self.tags.map do |tag|
           case tag when String then tag when Proc then tag.call(endpoint) end
@@ -78,6 +76,7 @@ module Grape
         tags.push "method:#{method}"
         tags.push "path:#{path}"
         tags.push "version:#{version}" if version
+        tags.push "status:#{endpoint.status}"
         tags.compact!
 
         statsd.increment metric_name, :tags => tags

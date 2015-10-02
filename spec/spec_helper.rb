@@ -31,9 +31,8 @@ class TestAPI < Grape::API
   namespace :sub do
     mount VersionedTestAPI
 
-    namespace :nest do
-      get("/resource") { "{}" }
-      put("/resource") { "OK" }
+    namespace :secure do
+      get("/resource") { error!("forbidden", 403) }
     end
   end
 end

@@ -20,8 +20,8 @@ describe Grape::Datadog do
     expect(last_response.body).to eq('1 1234')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_,status:200",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_,status:200",
     ])
   end
 
@@ -31,19 +31,19 @@ describe Grape::Datadog do
     expect(last_response.body).to eq('OK')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/versioned,version:v1  ",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/versioned,version:v1  ",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/api/sub/versioned,version:v1,status:200",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/api/sub/versioned,version:v1,status:200",
     ])
   end
 
   it 'should support deep nesting' do
-    get '/sub/nest/resource'
-    expect(last_response.status).to eq(200)
-    expect(last_response.body).to eq('{}')
+    get '/sub/secure/resource'
+    expect(last_response.status).to eq(403)
+    expect(last_response.body).to eq('forbidden')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/versioned,version:v1  ",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/versioned,version:v1  ",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/secure/resource,status:403",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/secure/resource,status:403",
     ])
   end
 
