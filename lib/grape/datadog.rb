@@ -49,8 +49,12 @@ module Grape
           return
         end
 
-        unless tags.any? {|t| t =~ /^host\:/ }
+        if tags.none? {|t| t =~ /^host\:/ }
           tags.push("host:#{hostname}")
+        end
+
+        if ENV['RACK_ENV'] && tags.none? {|t| t =~ /^env\:/ }
+          tags.push("env:#{ENV['RACK_ENV']}")
         end
 
         ActiveSupport::Notifications.subscribe 'endpoint_run.grape' do |_, start, finish, _, payload|

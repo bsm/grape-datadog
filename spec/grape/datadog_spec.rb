@@ -8,8 +8,9 @@ describe Grape::Datadog do
   subject { described_class.instance }
 
   it 'should be configurable' do
-    expect(subject.tags.size).to eq(3)
+    expect(subject.tags.size).to eq(4)
     expect(subject.tags).to include("host:test.host")
+    expect(subject.tags).to include("env:test")
     expect(subject.tags).to include("custom:tag")
     expect(subject.statsd).to be_instance_of(MockStatsd)
   end
@@ -20,8 +21,8 @@ describe Grape::Datadog do
     expect(last_response.body).to eq('1 1234')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_,status:200",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/echo/_key1_/_key2_,status:200",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/echo/_key1_/_key2_,status:200",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/echo/_key1_/_key2_,status:200",
     ])
   end
 
@@ -31,8 +32,8 @@ describe Grape::Datadog do
     expect(last_response.body).to eq('OK')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/api/sub/versioned,version:v1,status:200",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/api/sub/versioned,version:v1,status:200",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/api/sub/versioned,version:v1,status:200",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/api/sub/versioned,version:v1,status:200",
     ])
   end
 
@@ -42,8 +43,8 @@ describe Grape::Datadog do
     expect(last_response.body).to eq('forbidden')
 
     expect(subject.statsd.buffer).to eq([
-      "grape.request:1|c|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/secure/resource,status:403",
-      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,method:GET,path:/sub/secure/resource,status:403",
+      "grape.request:1|c|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/sub/secure/resource,status:403",
+      "grape.request.time:333|ms|#custom:tag,format:txt,host:test.host,env:test,method:GET,path:/sub/secure/resource,status:403",
     ])
   end
 
